@@ -12,11 +12,10 @@ class CountdownTab:
         self.cancel_requested = False
         self.page = page
         self.task = None
-
-        # Timer UI components
         self.progress = ft.ProgressRing(value=0, width=100, height=100)
         self.timer_text = ft.Text(self._format_time(self.seconds), size=30)
         self.start_button = ft.ElevatedButton("Start", on_click=self.start_timer)
+        
         self.pause_button = ft.ElevatedButton(
             "Pause", on_click=self.pause_timer, disabled=True
         )
@@ -24,7 +23,6 @@ class CountdownTab:
             "Reset", on_click=self.reset_timer, disabled=True
         )
 
-        # Layout for each timer tab
         self.content = ft.Column(
             [
                 ft.Text(self.label, size=40, weight="bold"),
@@ -62,10 +60,8 @@ class CountdownTab:
                 self.reset_button.disabled = False
                 self.page.update()
         except asyncio.CancelledError:
-            # Suppress the CancelledError to prevent propagation
             pass
         finally:
-            # Ensure the task reference is cleared
             self.task = None
 
     def start_timer(self, e):
@@ -74,22 +70,22 @@ class CountdownTab:
             self.start_button.disabled = True
             self.pause_button.disabled = False
             self.reset_button.disabled = False
-            self.cancel_requested = False  # Allow timer to continue running
-            if not self.task:  # Create a new task if not already running
+            self.cancel_requested = False 
+            if not self.task: 
                 self.task = self.page.run_task(self.update_timer)
             self.page.update()
 
     def pause_timer(self, e):
         if self.running:
-            self.running = False  # Stop the timer logic
-            self.cancel_requested = True  # Ensure the loop in `update_timer` breaks
+            self.running = False 
+            self.cancel_requested = True 
             self.start_button.disabled = False
             self.pause_button.disabled = True
             self.page.update()
 
     def reset_timer(self, e):
         self.running = False
-        self.cancel_task()  # Fully cancel the task
+        self.cancel_task() 
         self.seconds = self.total_seconds
         self.timer_text.value = self._format_time(self.seconds)
         self.progress.value = 0
@@ -109,35 +105,28 @@ class CountdownTab:
             finally:
                 self.task = None
 
-
 def main(page: ft.Page):
     page.title = "Multi Countdown Timer App"
+    page.theme_mode = "light"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-
-    # Create timer instances
     timer1 = CountdownTab("Timer 1", 120, page)
     timer2 = CountdownTab("Timer 2", 180, page)
     timer3 = CountdownTab("Timer 3", 300, page)
 
     timers = [timer1, timer2, timer3]
 
-    # Navigation Drawer functionality
     def show_timer(index):
-        # Pause all other timers when switching
         for i, timer in enumerate(timers):
             if i != index and timer.running:
                 timer.pause_timer(None)
 
-        # Clear previous content
         if len(page.controls) > 1:
             page.controls.pop(-1)
 
-        # Add the selected timer content
         page.add(timers[index].content)
         page.update()
 
-    # Define Navigation Drawer
     drawer = ft.NavigationDrawer(
         on_change=lambda e: show_timer(e.control.selected_index),
         controls=[
@@ -147,10 +136,9 @@ def main(page: ft.Page):
         ],
     )
 
-    # Add Menu Button and Default Timer
     page.add(
         ft.ElevatedButton("Open Menu", on_click=lambda e: page.open(drawer)),
-        timer1.content,  # Default tab to display first
+        timer1.content,  
     )
     page.update()
 

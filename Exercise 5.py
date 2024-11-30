@@ -4,7 +4,7 @@ import flet as ft
 
 def main(page: ft.Page):
     page.title = "Flet picture viewer app"
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme_mode = "light"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     date_value = None 
 
